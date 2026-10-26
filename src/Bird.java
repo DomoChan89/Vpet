@@ -8,6 +8,7 @@ import java.util.List;
  *   2026-10-26  Added comments to every method.
  *   2026-10-26  Added pixel-art sprite for the adoption center.
  *   2026-10-26  Added greetings that get warmer as affection grows.
+ *   2026-10-26  Hungry check now uses isHungry() for the new hunger meter.
  */
 public class Bird extends Pet {
     /** Pixel art: a blue bird with a white belly and yellow beak and feet. */
@@ -71,7 +72,7 @@ public class Bird extends Pet {
     /** Squawks when hungry, sings when happy, otherwise makes a normal sound. */
     @Override
     public String speak() {
-        if (getHunger() > 70) return getName() + " squawks at the empty feeder: SQUAWK!";
+        if (isHungry()) return getName() + " squawks at the empty feeder: SQUAWK!";
         if (getEnergy() >= 20 && getHappiness() > 80) return getName() + " sings a happy little song: Tweet tweet tweee!";
         return super.speak();
     }

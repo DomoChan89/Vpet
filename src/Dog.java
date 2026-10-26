@@ -9,6 +9,7 @@ import java.util.List;
  *   2026-10-26  Added comments to every method.
  *   2026-10-26  Added pixel-art sprite for the adoption center.
  *   2026-10-26  Added greetings that get warmer as affection grows.
+ *   2026-10-26  Hungry check now uses isHungry() for the new hunger meter.
  */
 public class Dog extends Pet {
     /** Pixel art: a brown puppy face with floppy ears and a pink tongue. */
@@ -70,7 +71,7 @@ public class Dog extends Pet {
     /** Whines when hungry, barks happily when happy, otherwise makes a normal sound. */
     @Override
     public String speak() {
-        if (getHunger() > 70) return getName() + " whines: *whimper* (I'm hungry!)";
+        if (isHungry()) return getName() + " whines: *whimper* (I'm hungry!)";
         if (getEnergy() >= 20 && getHappiness() > 80) return getName() + " barks happily: Woof woof!";
         return super.speak();
     }

@@ -21,6 +21,11 @@ import java.util.Random;
  *               (Shy, Friendly, Close, Best Friends) shown in the status line.
  *               Added isFull() so food bought at the shop isn't wasted on a full pet.
  *   2026-10-26  Added trick training: practiceTrick(), knowsTrick(), and showOffTrick().
+ *   2026-10-26  Hunger is now a Hunger meter (100 = full, 0 = empty) instead of a number
+ *               that counted up. Favorite foods fill it completely; snacks and candy fill
+ *               it a little but raise affection. Training drains it more. A pet whose meter
+ *               stays empty for too long starves, and an empty meter no longer costs health.
+ *               Added isHungry() and getCauseOfDeath().
  */
 public abstract class Pet {
     protected static final int MAX_STAT = 100;
@@ -33,7 +38,7 @@ public abstract class Pet {
     private int age;                 // number of turns the pet has lived
 
     // Tamagotchi-style stats, 0..100
-    private int hunger = 0;          // 0 = full, 100 = starving
+    private final Hunger hunger = new Hunger(); // 100 = full, 0 = empty
     private int happiness = 80;
     private int energy = 80;
     private int cleanliness = 80;
@@ -87,7 +92,7 @@ public abstract class Pet {
 
     /** Returns what the pet says, based on its mood (hungry, tired, or a random sound). */
     public String speak() {
-        if (hunger > 70) return name + " is hungry: " + randomSound();
+        if (isHungry()) return name + " is hungry: " + randomSound();
         if (energy < 20) return name + " yawns: *yaaawn*";
         return name + " says: " + randomSound();
     }
@@ -123,36 +128,61 @@ public abstract class Pet {
         return getFavoriteFoods().stream().anyMatch(f -> f.equalsIgnoreCase(food));
     }
 
-    /** Returns true when the pet is completely full and won't eat. */
+    /** Returns true when the hunger meter is full and the pet won't eat. */
     public boolean isFull() {
-        return hunger == 0;
+        return hunger.isFull();
+    }
+
+    /** Returns true when the hunger meter is low and the pet wants food. */
+    public boolean isHungry() {
+        return hunger.isHungry();
     }
 
     /**
-     * Feeds the pet. Favorite foods lower hunger by 40 and add 15 happiness;
-     * other foods lower hunger by 25. A full pet refuses to eat.
+     * Feeds the pet. What happens depends on the food (a full pet refuses to eat):
+     * - Snack: fills the hunger meter by 10, +3 happiness, +3 affection.
+     * - Candy: fills the hunger meter by 5, +5 happiness, +5 affection.
+     * - Favorite food: fills the hunger meter completely, +15 happiness.
+     * - Any other food: fills the hunger meter by 30.
+     * Only snacks and candy raise affection.
      */
     public String feed(String food) {
         if (isFull()) {
             return name + " sniffs the " + food + " but is too full to eat.";
         }
-        if (isFavoriteFood(food)) {
-            hunger = clamp(hunger - 40);
-            happiness = clamp(happiness + 15);
-            return favoriteFoodMessage(food);
+        switch (Food.typeOf(food)) {
+            case SNACK -> {
+                hunger.fill(10);
+                happiness = clamp(happiness + 3);
+                affection = clamp(affection + 3);
+                return name + " happily munches the " + food + " and nuzzles your hand. (+3 affection)";
+            }
+            case CANDY -> {
+                hunger.fill(5);
+                happiness = clamp(happiness + 5);
+                affection = clamp(affection + 5);
+                return name + " gobbles up the " + food + " and looks at you adoringly! (+5 affection)";
+            }
+            default -> {
+                if (isFavoriteFood(food)) {
+                    hunger.fillCompletely();
+                    happiness = clamp(happiness + 15);
+                    return favoriteFoodMessage(food) + " " + name + " is completely full!";
+                }
+                hunger.fill(30);
+                return name + " eats the " + food + ".";
+            }
         }
-        hunger = clamp(hunger - 25);
-        return name + " eats the " + food + ".";
     }
 
     // --- Care actions ---
 
-    /** Plays with the pet: more happiness, but less energy and cleanliness and more hunger. Too-tired pets refuse. */
+    /** Plays with the pet: more happiness, but less energy and cleanliness, and the hunger meter drains 10. Too-tired pets refuse. */
     public String play() {
         if (isTooTired()) return name + " is too tired to play.";
         happiness = clamp(happiness + 20);
         energy = clamp(energy - 15);
-        hunger = clamp(hunger + 10);
+        hunger.drain(10);
         cleanliness = clamp(cleanliness - 10);
         return playMessage();
     }
@@ -165,7 +195,7 @@ public abstract class Pet {
     /**
      * Applies the result of a mini-game. Happiness goes up 5, plus 5 per round won.
      * Affection goes up 1, plus 3 per round won, plus a 5 bonus for winning every round.
-     * Games also use 10 energy and add 5 hunger.
+     * Games also use 10 energy and drain the hunger meter by 5.
      */
     public String rewardForGame(int wins, int rounds) {
         int happinessGain = 5 + wins * 5;
@@ -173,7 +203,7 @@ public abstract class Pet {
         happiness = clamp(happiness + happinessGain);
         affection = clamp(affection + affectionGain);
         energy = clamp(energy - 10);
-        hunger = clamp(hunger + 5);
+        hunger.drain(5);
         return name + " had fun playing with you! (+" + happinessGain + " happiness, +" + affectionGain + " affection)";
     }
 
@@ -190,13 +220,13 @@ public abstract class Pet {
     }
 
     /**
-     * Records one training session. Training uses 8 energy and adds 5 hunger whether
-     * or not it works. A successful session counts toward learning the trick, and
-     * learning it earns 5 happiness and 5 affection. Returns true if the pet just learned it.
+     * Records one training session. Training uses 8 energy and drains the hunger meter
+     * by 10 whether or not it works. A successful session counts toward learning the trick,
+     * and learning it earns 5 happiness and 5 affection. Returns true if the pet just learned it.
      */
     public boolean practiceTrick(String trick, boolean success) {
         energy = clamp(energy - 8);
-        hunger = clamp(hunger + 5);
+        hunger.drain(10);
         if (!success || knowsTrick(trick)) return false;
 
         trickProgress.merge(trick, 1, Integer::sum);
@@ -215,10 +245,10 @@ public abstract class Pet {
         energy = clamp(energy - 3);
     }
 
-    /** Puts the pet to sleep: refills energy, but it wakes up a bit hungrier. */
+    /** Puts the pet to sleep: refills energy, but it wakes up hungrier (the hunger meter drains 15). */
     public String sleep() {
         energy = MAX_STAT;
-        hunger = clamp(hunger + 15);
+        hunger.drain(15);
         return name + " curls up and sleeps. Zzz...";
     }
 
@@ -230,24 +260,30 @@ public abstract class Pet {
     }
 
     /**
-     * Makes one step of time pass: hunger goes up, the other stats go down.
-     * A very hungry or dirty pet loses health. The pet also gets one turn older.
+     * Makes one step of time pass: the hunger meter drains and the other stats go down.
+     * A very dirty pet loses health. The pet also gets one turn older.
      * Call once per game turn.
      */
     public void tick() {
         age++;
-        hunger = clamp(hunger + 5);
+        hunger.tick();
         energy = clamp(energy - 3);
         happiness = clamp(happiness - 2);
         cleanliness = clamp(cleanliness - 2);
-        if (hunger > 80 || cleanliness < 20) {
+        if (cleanliness < 20) {
             health = clamp(health - 5);
         }
     }
 
-    /** Returns true while the pet's health is above 0. */
+    /** Returns true unless the pet has starved or its health has run out. */
     public boolean isAlive() {
-        return health > 0;
+        return health > 0 && !hunger.hasStarved();
+    }
+
+    /** Explains how the pet died, for the memorial. */
+    public String getCauseOfDeath() {
+        if (hunger.hasStarved()) return "starved after going " + Hunger.STARVE_TURNS + " turns without food";
+        return "got sick from not being kept clean";
     }
 
     /** Keeps a stat between 0 and 100. */
@@ -259,17 +295,20 @@ public abstract class Pet {
 
     public String getName() { return name; }
     public int getAge() { return age; }
-    public int getHunger() { return hunger; }
+    /** Returns the hunger meter level: 100 = full, 0 = empty. */
+    public int getHunger() { return hunger.getLevel(); }
+    /** Returns the hunger meter itself, e.g. to check the starvation countdown. */
+    public Hunger getHungerMeter() { return hunger; }
     public int getHappiness() { return happiness; }
     public int getEnergy() { return energy; }
     public int getCleanliness() { return cleanliness; }
     public int getHealth() { return health; }
     public int getAffection() { return affection; }
 
-    /** One-line status readout, e.g. "Rex the Beagle | Hunger: 10 | Happy: 95 | ...". */
+    /** One-line status readout, e.g. "Rex the Beagle | Hunger: [########--] 80/100 | Happy: 95 | ...". */
     @Override
     public String toString() {
-        return String.format("%s the %s | Hunger: %d | Happy: %d | Energy: %d | Clean: %d | Health: %d | Affection: %d (%s)",
+        return String.format("%s the %s | Hunger: %s | Happy: %d | Energy: %d | Clean: %d | Health: %d | Affection: %d (%s)",
                 name, getKind(), hunger, happiness, energy, cleanliness, health, affection, getAffectionLevel());
     }
 }

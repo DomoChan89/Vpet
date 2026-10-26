@@ -22,6 +22,8 @@ import java.util.Scanner;
  *               your bag, except Chow, which is always free. Added the greet command, and
  *               pets now greet you based on their affection.
  *   2026-10-26  Added trick training: the train, tricks, and trick commands.
+ *   2026-10-26  Warnings now count down the turns left when the hunger meter is empty,
+ *               and the death message says how the pet died (starved or got sick).
  */
 public class VirtualPetGame {
     /** Pixel art: a gray tombstone with a cross, shown when a pet dies. */
@@ -166,14 +168,14 @@ public class VirtualPetGame {
             }
 
             pet.tick();
-            warnIfNeeded();
+            if (pet.isAlive()) warnIfNeeded();
         }
     }
 
     /** Shows a tombstone for the pet that died, adds it to the memorial, and lists every pet lost so far. */
     private void mournPet() {
         memorial.add(pet);
-        System.out.println("\nOh no... " + pet.getName() + " wasn't taken care of and has passed away.\n");
+        System.out.println("\nOh no... " + pet.getName() + " " + pet.getCauseOfDeath() + " and has passed away.\n");
         System.out.print(PixelArt.render(TOMBSTONE));
         System.out.println("\nIn loving memory:");
         for (Pet lost : memorial) {
@@ -265,7 +267,14 @@ public class VirtualPetGame {
 
     /** Prints a "(!)" warning for each stat that is getting dangerously low. */
     private void warnIfNeeded() {
-        if (pet.getHunger() > 70) System.out.println("(!) " + pet.getName() + " is very hungry.");
+        Hunger hunger = pet.getHungerMeter();
+        if (hunger.isEmpty()) {
+            int turnsLeft = hunger.turnsUntilStarved();
+            System.out.println("(!) " + pet.getName() + "'s hunger meter is EMPTY! Feed them within "
+                    + turnsLeft + (turnsLeft == 1 ? " turn" : " turns") + " or they will starve!");
+        } else if (hunger.isHungry()) {
+            System.out.println("(!) " + pet.getName() + " is very hungry.");
+        }
         if (pet.getEnergy() < 20) System.out.println("(!) " + pet.getName() + " is exhausted.");
         if (pet.getCleanliness() < 30) System.out.println("(!) " + pet.getName() + " needs a bath.");
         if (pet.getHappiness() < 30) System.out.println("(!) " + pet.getName() + " is feeling sad.");
@@ -278,6 +287,7 @@ public class VirtualPetGame {
 
                 Commands:
                   feed <food>  - feed your pet food from your bag ('feed chow' is always free)
+                                 favorite foods fill them up; snacks and candy raise affection
                   greet        - say hi (the more affection, the warmer the greeting)
                   play         - play with your pet
                   games        - play a mini-game (raises happiness and affection, earns coins)

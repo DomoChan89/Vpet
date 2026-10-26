@@ -8,6 +8,7 @@ import java.util.List;
  *   2026-10-26  Added comments to every method.
  *   2026-10-26  Added pixel-art sprite for the adoption center.
  *   2026-10-26  Added greetings that get warmer as affection grows.
+ *   2026-10-26  Hungry check now uses isHungry() for the new hunger meter.
  */
 public class Cat extends Pet {
     /** Pixel art: an orange cat face with green eyes and whiskers. */
@@ -70,7 +71,7 @@ public class Cat extends Pet {
     /** Yowls when hungry, purrs when happy, otherwise makes a normal sound. */
     @Override
     public String speak() {
-        if (getHunger() > 70) return getName() + " yowls at the food bowl: MEOOOW!";
+        if (isHungry()) return getName() + " yowls at the food bowl: MEOOOW!";
         if (getEnergy() >= 20 && getHappiness() > 80) return getName() + " purrs contentedly: Purrr...";
         return super.speak();
     }

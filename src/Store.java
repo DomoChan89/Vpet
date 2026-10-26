@@ -1,15 +1,18 @@
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
 /**
  * The shop, where the player spends coins from mini-games on food. It stocks
- * your current pet's favorite foods. Bought food goes into the player's Inventory.
+ * your current pet's favorite foods plus snacks and candy for every pet.
+ * Bought food goes into the player's Inventory.
  *
  * Change log:
  *   2026-10-22  Created as an empty placeholder.
  *   2026-10-26  Added class comment.
  *   2026-10-26  Now a working shop that sells each pet's favorite foods for coins.
+ *   2026-10-26  Also sells snacks and candy (Food.TREATS), which raise affection.
  */
 public class Store {
     /** Price in coins of every food the shop can sell. */
@@ -38,11 +41,14 @@ public class Store {
         this.inventory = inventory;
     }
 
-    /** Returns what the shop sells for this pet: its favorite foods, with prices. */
+    /** Returns what the shop sells for this pet: its favorite foods (meals), then the snacks and candy. */
     public List<Food> stockFor(Pet pet) {
-        return pet.getFavoriteFoods().stream()
-                .map(name -> new Food(name, PRICES.getOrDefault(name, DEFAULT_PRICE)))
-                .toList();
+        List<Food> stock = new ArrayList<>();
+        for (String name : pet.getFavoriteFoods()) {
+            stock.add(new Food(name, PRICES.getOrDefault(name, DEFAULT_PRICE), Food.Type.MEAL));
+        }
+        stock.addAll(Food.TREATS);
+        return stock;
     }
 
     /**
@@ -52,14 +58,17 @@ public class Store {
     public void visit(Pet pet) {
         List<Food> stock = stockFor(pet);
         System.out.println("\n=== Pet Shop ===");
-        System.out.println("Treats " + pet.getName() + " loves:");
 
         while (true) {
-            System.out.println();
+            System.out.println("\n" + pet.getName() + "'s favorite meals (fill the hunger meter all the way):");
             for (int i = 0; i < stock.size(); i++) {
                 Food food = stock.get(i);
-                System.out.printf("  %d) %-16s %3d coins   (you have %d)%n",
-                        i + 1, food.getName(), food.getPrice(), inventory.countFood(food.getName()));
+                if (food.getType() != Food.Type.MEAL && stock.get(i - 1).getType() == Food.Type.MEAL) {
+                    System.out.println("Snacks and candy (fill a little, but raise affection):");
+                }
+                String label = food.getType() == Food.Type.MEAL ? "" : food.getType() == Food.Type.SNACK ? "snack" : "candy";
+                System.out.printf("  %2d) %-16s %3d coins  %-6s (you have %d)%n",
+                        i + 1, food.getName(), food.getPrice(), label, inventory.countFood(food.getName()));
             }
             System.out.println("You have " + inventory.getCoins() + " coins.");
             System.out.print("Buy which item? (1-" + stock.size() + ", or 'back') ");

@@ -1,6 +1,6 @@
 # Virtual Pet
 
-A text-based virtual pet game in Java, inspired by the Tamagotchi. Adopt a dog, cat, dinosaur, or bird and keep it fed, happy, rested, and clean, play mini-games together to build its affection for you, and teach it tricks. If you neglect it, its health drops, and when health reaches 0 it passes away, but you can adopt a new pet and try again.
+A text-based virtual pet game in Java, inspired by the Tamagotchi. Adopt a dog, cat, dinosaur, or bird and keep it fed, happy, rested, and clean, play mini-games together to build its affection for you, and teach it tricks. If its hunger meter stays empty for too long, or it's left dirty until its health runs out, it passes away, but you can adopt a new pet and try again.
 
 ## Running the game
 
@@ -33,7 +33,7 @@ Once you've adopted, type commands:
 
 | Command       | What it does                                                         |
 |---------------|----------------------------------------------------------------------|
-| `feed <food>` | Feed your pet food from your bag, e.g. `feed tuna`. Favorite foods fill it up more and make it happier. `feed chow` is always free. |
+| `feed <food>` | Feed your pet food from your bag, e.g. `feed tuna`. Favorite foods fill the hunger meter all the way, and snacks and candy raise affection. `feed chow` is always free. |
 | `greet`       | Say hi. The more affection your pet has, the warmer its greeting.    |
 | `play`        | Play together. Makes it happier, but more tired, hungry, and dirty.  |
 | `games`       | Play a mini-game: Higher or Lower, or Left or Right. Raises happiness and affection, and earns coins. |
@@ -50,7 +50,7 @@ Once you've adopted, type commands:
 | `help`        | Show the command list.                                               |
 | `quit`        | Leave the game.                                                      |
 
-Each action moves time forward one step: hunger rises and energy, happiness, and cleanliness fall. The game prints a warning when a stat gets low. `status`, `help`, `foods`, `shop`, `bag`, and `tricks` don't use up time.
+Each action moves time forward one step: the hunger meter drains and energy, happiness, and cleanliness fall. The game prints a warning when a stat gets low. `status`, `help`, `foods`, `shop`, `bag`, and `tricks` don't use up time.
 
 ### Mini-games
 
@@ -59,13 +59,38 @@ Type `games` to pick one. Each game is 3 rounds.
 - **Higher or Lower:** a card is shown, and you guess whether the next card will be higher or lower. Aces are low and Kings are high, and a tie scores nothing.
 - **Left or Right:** the classic V-Pet game. Your pet is about to turn, and you guess which way. Then it appears on that side of the screen, facing that way.
 
-Every game raises happiness by 5, plus 5 per round won, and affection by 1, plus 3 per round won. Winning all 3 rounds earns a 5-point affection bonus. Games use 10 energy and add 5 hunger, and a pet that is too tired won't play. Type `back` at the game menu to leave without playing.
+Every game raises happiness by 5, plus 5 per round won, and affection by 1, plus 3 per round won. Winning all 3 rounds earns a 5-point affection bonus. Games use 10 energy and drain the hunger meter by 5, and a pet that is too tired won't play. Type `back` at the game menu to leave without playing.
 
 Games also pay **coins**: 2 for playing, 5 per round won, and a 5-coin bonus for a perfect game (2, 7, 12, or 22 coins for 0 to 3 wins).
 
 ### Coins and the shop
 
-You start with 20 coins. Type `shop` to see your pet's favorite foods and their prices (4 to 20 coins), then buy by number. Bought food goes in your bag, and `feed` takes it from there. If you run out, `feed chow` is a free basic meal that never runs out, but it isn't a favorite. Your coins and bag carry over if you adopt a new pet. A full pet won't eat, so you never waste food.
+You start with 20 coins. Type `shop` to see what's for sale, then buy by number. The shop sells your pet's favorite meals (4 to 20 coins) plus snacks and candy (5 to 9 coins). Bought food goes in your bag, and `feed` takes it from there. If you run out, `feed chow` is a free basic meal that never runs out, but it isn't a favorite. Your coins and bag carry over if you adopt a new pet. A full pet won't eat, so you never waste food.
+
+### Hunger and food
+
+Every pet has a **hunger meter**, like the hunger hearts on a Tamagotchi: 100 means full and 0 means empty. `status` shows it as a bar, e.g. `Hunger: [########--] 80/100`. It drains 5 every turn, and more when your pet is active:
+
+| Activity       | Hunger meter |
+|----------------|--------------|
+| Each turn      | -5           |
+| Training       | -10          |
+| Play           | -10          |
+| Mini-game      | -5           |
+| Sleep          | -15          |
+
+What each kind of food does:
+
+| Food                                    | Hunger meter    | Also                         |
+|-----------------------------------------|-----------------|------------------------------|
+| Your pet's favorite foods                | Fills it all the way | +15 happiness           |
+| Other meals (like free Chow)            | +30             |                              |
+| Snacks: Cookie, Crackers                | +10             | +3 happiness, +3 affection   |
+| Candy: Candy, Lollipop                  | +5              | +5 happiness, +5 affection   |
+
+Snacks and candy are the only foods that raise affection, but they barely fill your pet up.
+
+**Starving:** when the hunger meter hits 0, a countdown starts: "(!) Rex's hunger meter is EMPTY! Feed them within 9 turns or they will starve!" Feeding anything stops the countdown. If the meter stays empty for 10 turns in a row, your pet starves.
 
 ### Affection and greetings
 
@@ -84,11 +109,11 @@ Affection grows as you play mini-games, and it changes how your pet greets you w
 
 Every pet can learn **Fetch**, **Stay**, and **Speak**. Type `train`, pick a trick, and your pet practices it once. A session might not work. The chance is 40%, plus half your pet's affection, plus 10% if it's happy (over 70), up to 90%. So a pet that loves you learns faster.
 
-After 3 successful sessions, your pet learns the trick and gets 5 happiness and 5 affection. Then `trick fetch` (or `stay`, `speak`) has it show off for 5 happiness and 2 affection. Each training session uses 8 energy and adds 5 hunger, and a pet that is too tired won't train. `tricks` shows progress bars, e.g. `Fetch [##-] 2/3`.
+After 3 successful sessions, your pet learns the trick and gets 5 happiness and 5 affection. Then `trick fetch` (or `stay`, `speak`) has it show off for 5 happiness and 2 affection. Each training session uses 8 energy and drains the hunger meter by 10, and a pet that is too tired won't train. `tricks` shows progress bars, e.g. `Fetch [##-] 2/3`.
 
 ### If your pet dies
 
-Like hatching a new egg on a Digimon V-Pet, losing a pet isn't the end of the game. You'll see a tombstone and a memorial listing every pet you've lost and how many turns each one lived. Then you can go back to the adoption center and adopt a new pet, or end the game.
+A pet dies if its hunger meter stays empty for 10 turns in a row, or if it's left so dirty that its health runs out. Like hatching a new egg on a Digimon V-Pet, losing a pet isn't the end of the game. You'll see a tombstone and a memorial listing every pet you've lost and how many turns each one lived, and the game tells you how your pet died. Then you can go back to the adoption center and adopt a new pet, or end the game.
 
 ## The pets
 
@@ -108,7 +133,8 @@ Like hatching a new egg on a Digimon V-Pet, losing a pet isn't the end of the ga
 | `Dog.java`, `Cat.java`, `Dinosaur.java`, `Bird.java` | Each animal's sounds, favorite foods, and its own reactions. |
 | `PixelArt.java`       | Draws the pixel-art animal pictures in the console.                     |
 | `Games.java`          | The Higher or Lower and Left or Right mini-games.                       |
-| `Store.java`, `Food.java` | The shop and the foods it sells, with prices.                       |
+| `Store.java`, `Food.java` | The shop and what it sells: meals, snacks, and candy, with prices.   |
+| `Hunger.java`         | The hunger meter: filling, draining, and the starvation countdown.      |
 | `Inventory.java`      | Your bag: coins and the food you've bought.                           |
 | `Training.java`       | Trick training: Fetch, Stay, and Speak.                                  |
 
@@ -127,10 +153,6 @@ public class Bunny extends Pet {
 
 Then add it to `showAdoptionCenter()` and `pickAnimal()` in `VirtualPetGame.java`.
 
-## Planned
-
-`Hunger` is a placeholder for more detailed hunger rules.
-
 ## Change log
 
 | Date       | Changes |
@@ -142,3 +164,4 @@ Then add it to `showAdoptionCenter()` and `pickAnimal()` in `VirtualPetGame.java
 | 2026-10-26 | Added the Higher or Lower and Left or Right mini-games (`games` command) and the affection stat, which mini-games raise along with happiness. |
 | 2026-10-26 | Mini-games are now 3 rounds and pay coins based on how many rounds you win. Added the shop (`shop`), your bag of coins and food (`bag`), and free Chow; feeding now uses food from your bag. Pets now greet you based on affection (`greet`), with four affection levels shown in `status`. |
 | 2026-10-26 | Added trick training: every pet can learn Fetch, Stay, and Speak (`train`), check progress (`tricks`), and show off learned tricks (`trick <name>`). |
+| 2026-10-26 | Hunger is now a Tamagotchi-style hunger meter (100 = full, 0 = empty) in `Hunger.java`. It drains every turn and more with training (now -10), play, and games. Favorite foods fill it all the way. New snacks (Cookie, Crackers) and candy (Candy, Lollipop) fill it a little but raise affection. Pets now starve if the meter stays empty for 10 turns, with a countdown warning, and the memorial says how each pet died. |
