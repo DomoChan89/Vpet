@@ -21,6 +21,7 @@ import java.util.Scanner;
  *               food, and the bag command shows what you have. Feeding now uses food from
  *               your bag, except Chow, which is always free. Added the greet command, and
  *               pets now greet you based on their affection.
+ *   2026-10-26  Added trick training: the train, tricks, and trick commands.
  */
 public class VirtualPetGame {
     /** Pixel art: a gray tombstone with a cross, shown when a pet dies. */
@@ -44,6 +45,7 @@ public class VirtualPetGame {
     private final Inventory inventory = new Inventory(STARTING_COINS);
     private final Games games = new Games(scanner, inventory);
     private final Store store = new Store(scanner, inventory);
+    private final Training training = new Training(scanner);
     private final List<Pet> memorial = new ArrayList<>();
     private Pet pet;
 
@@ -110,6 +112,22 @@ public class VirtualPetGame {
                     System.out.println(pet.feed(food));
                 }
                 case "greet", "hello", "hi" -> System.out.println(pet.greet());
+                case "train" -> {
+                    String result = training.train(pet);
+                    if (result == null) continue; // backed out without training
+                    System.out.println(result);
+                }
+                case "tricks" -> {
+                    System.out.println(training.describeTricks(pet));
+                    continue;
+                }
+                case "trick" -> {
+                    if (parts.length < 2) {
+                        System.out.println("Which trick? e.g. 'trick fetch'. Type 'tricks' to see what " + pet.getName() + " knows.");
+                        continue;
+                    }
+                    if (!training.perform(pet, parts[1])) continue; // unknown trick: no time passes
+                }
                 case "shop", "store" -> {
                     store.visit(pet);
                     continue; // shopping doesn't make time pass
@@ -263,6 +281,9 @@ public class VirtualPetGame {
                   greet        - say hi (the more affection, the warmer the greeting)
                   play         - play with your pet
                   games        - play a mini-game (raises happiness and affection, earns coins)
+                  train        - practice a trick: Fetch, Stay, or Speak
+                  tricks       - see which tricks your pet knows
+                  trick <name> - have your pet show off a trick it knows, e.g. trick fetch
                   shop         - spend coins on your pet's favorite foods
                   bag          - see your coins and food
                   sleep        - put your pet to bed

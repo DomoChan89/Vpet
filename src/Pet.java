@@ -1,4 +1,6 @@
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -18,11 +20,14 @@ import java.util.Random;
  *   2026-10-26  Added greet(), which depends on affection, and affection levels
  *               (Shy, Friendly, Close, Best Friends) shown in the status line.
  *               Added isFull() so food bought at the shop isn't wasted on a full pet.
+ *   2026-10-26  Added trick training: practiceTrick(), knowsTrick(), and showOffTrick().
  */
 public abstract class Pet {
     protected static final int MAX_STAT = 100;
     protected static final Random RANDOM = new Random();
     private static final String[] AFFECTION_LEVELS = {"Shy", "Friendly", "Close", "Best Friends"};
+    /** How many successful training sessions it takes to learn a trick. */
+    public static final int SESSIONS_TO_LEARN = 3;
 
     private final String name;
     private int age;                 // number of turns the pet has lived
@@ -34,6 +39,7 @@ public abstract class Pet {
     private int cleanliness = 80;
     private int health = 100;
     private int affection = 0;       // how attached the pet is to you; earned by playing mini-games
+    private final Map<String, Integer> trickProgress = new HashMap<>(); // trick -> successful sessions so far
 
     /** Creates a pet with the given name and default starting stats. */
     protected Pet(String name) {
@@ -169,6 +175,44 @@ public abstract class Pet {
         energy = clamp(energy - 10);
         hunger = clamp(hunger + 5);
         return name + " had fun playing with you! (+" + happinessGain + " happiness, +" + affectionGain + " affection)";
+    }
+
+    // --- Tricks ---
+
+    /** Returns how many successful training sessions the pet has had for a trick (0 to SESSIONS_TO_LEARN). */
+    public int getTrickProgress(String trick) {
+        return trickProgress.getOrDefault(trick, 0);
+    }
+
+    /** Returns true once the pet has fully learned a trick. */
+    public boolean knowsTrick(String trick) {
+        return getTrickProgress(trick) >= SESSIONS_TO_LEARN;
+    }
+
+    /**
+     * Records one training session. Training uses 8 energy and adds 5 hunger whether
+     * or not it works. A successful session counts toward learning the trick, and
+     * learning it earns 5 happiness and 5 affection. Returns true if the pet just learned it.
+     */
+    public boolean practiceTrick(String trick, boolean success) {
+        energy = clamp(energy - 8);
+        hunger = clamp(hunger + 5);
+        if (!success || knowsTrick(trick)) return false;
+
+        trickProgress.merge(trick, 1, Integer::sum);
+        if (knowsTrick(trick)) {
+            happiness = clamp(happiness + 5);
+            affection = clamp(affection + 5);
+            return true;
+        }
+        return false;
+    }
+
+    /** The pet performs a trick it knows: 5 happiness and 2 affection, for 3 energy. */
+    public void showOffTrick() {
+        happiness = clamp(happiness + 5);
+        affection = clamp(affection + 2);
+        energy = clamp(energy - 3);
     }
 
     /** Puts the pet to sleep: refills energy, but it wakes up a bit hungrier. */

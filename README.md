@@ -1,6 +1,6 @@
 # Virtual Pet
 
-A text-based virtual pet game in Java, inspired by the Tamagotchi. Adopt a dog, cat, dinosaur, or bird and keep it fed, happy, rested, and clean, and play mini-games together to build its affection for you. If you neglect it, its health drops, and when health reaches 0 it passes away, but you can adopt a new pet and try again.
+A text-based virtual pet game in Java, inspired by the Tamagotchi. Adopt a dog, cat, dinosaur, or bird and keep it fed, happy, rested, and clean, play mini-games together to build its affection for you, and teach it tricks. If you neglect it, its health drops, and when health reaches 0 it passes away, but you can adopt a new pet and try again.
 
 ## Running the game
 
@@ -37,6 +37,9 @@ Once you've adopted, type commands:
 | `greet`       | Say hi. The more affection your pet has, the warmer its greeting.    |
 | `play`        | Play together. Makes it happier, but more tired, hungry, and dirty.  |
 | `games`       | Play a mini-game: Higher or Lower, or Left or Right. Raises happiness and affection, and earns coins. |
+| `train`       | Practice a trick: Fetch, Stay, or Speak.                             |
+| `tricks`      | See which tricks your pet knows and its training progress.           |
+| `trick <name>`| Have your pet show off a trick it knows, e.g. `trick fetch`.          |
 | `shop`        | Spend coins on your pet's favorite foods.                            |
 | `bag`         | See your coins and food.                                             |
 | `sleep`       | Restores energy.                                                     |
@@ -47,7 +50,7 @@ Once you've adopted, type commands:
 | `help`        | Show the command list.                                               |
 | `quit`        | Leave the game.                                                      |
 
-Each action moves time forward one step: hunger rises and energy, happiness, and cleanliness fall. The game prints a warning when a stat gets low. `status`, `help`, `foods`, `shop`, and `bag` don't use up time.
+Each action moves time forward one step: hunger rises and energy, happiness, and cleanliness fall. The game prints a warning when a stat gets low. `status`, `help`, `foods`, `shop`, `bag`, and `tricks` don't use up time.
 
 ### Mini-games
 
@@ -77,6 +80,12 @@ Affection grows as you play mini-games, and it changes how your pet greets you w
 
 `status` shows your pet's affection and level.
 
+### Training tricks
+
+Every pet can learn **Fetch**, **Stay**, and **Speak**. Type `train`, pick a trick, and your pet practices it once. A session might not work. The chance is 40%, plus half your pet's affection, plus 10% if it's happy (over 70), up to 90%. So a pet that loves you learns faster.
+
+After 3 successful sessions, your pet learns the trick and gets 5 happiness and 5 affection. Then `trick fetch` (or `stay`, `speak`) has it show off for 5 happiness and 2 affection. Each training session uses 8 energy and adds 5 hunger, and a pet that is too tired won't train. `tricks` shows progress bars, e.g. `Fetch [##-] 2/3`.
+
 ### If your pet dies
 
 Like hatching a new egg on a Digimon V-Pet, losing a pet isn't the end of the game. You'll see a tombstone and a memorial listing every pet you've lost and how many turns each one lived. Then you can go back to the adoption center and adopt a new pet, or end the game.
@@ -101,6 +110,7 @@ Like hatching a new egg on a Digimon V-Pet, losing a pet isn't the end of the ga
 | `Games.java`          | The Higher or Lower and Left or Right mini-games.                       |
 | `Store.java`, `Food.java` | The shop and the foods it sells, with prices.                       |
 | `Inventory.java`      | Your bag: coins and the food you've bought.                           |
+| `Training.java`       | Trick training: Fetch, Stay, and Speak.                                  |
 
 ### Adding a new pet
 
@@ -119,7 +129,7 @@ Then add it to `showAdoptionCenter()` and `pickAnimal()` in `VirtualPetGame.java
 
 ## Planned
 
-`Training` and `Hunger` are placeholders for upcoming features, such as tricks your pet can learn.
+`Hunger` is a placeholder for more detailed hunger rules.
 
 ## Change log
 
@@ -131,3 +141,4 @@ Then add it to `showAdoptionCenter()` and `pickAnimal()` in `VirtualPetGame.java
 | 2026-10-26 | When a pet dies, the game shows a tombstone and a memorial of every pet you've lost, then lets you adopt a new one. A pet's age now counts the turns it has lived. |
 | 2026-10-26 | Added the Higher or Lower and Left or Right mini-games (`games` command) and the affection stat, which mini-games raise along with happiness. |
 | 2026-10-26 | Mini-games are now 3 rounds and pay coins based on how many rounds you win. Added the shop (`shop`), your bag of coins and food (`bag`), and free Chow; feeding now uses food from your bag. Pets now greet you based on affection (`greet`), with four affection levels shown in `status`. |
+| 2026-10-26 | Added trick training: every pet can learn Fetch, Stay, and Speak (`train`), check progress (`tricks`), and show off learned tricks (`trick <name>`). |
