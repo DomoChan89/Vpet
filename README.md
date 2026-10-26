@@ -1,6 +1,6 @@
 # Virtual Pet
 
-A text-based virtual pet game in Java, inspired by the Tamagotchi. Adopt a dog, cat, dinosaur, or bird and keep it fed, happy, rested, and clean. If you neglect it, its health drops, and when health reaches 0 the game is over.
+A text-based virtual pet game in Java, inspired by the Tamagotchi. Adopt a dog, cat, dinosaur, or bird and keep it fed, happy, rested, and clean, and play mini-games together to build its affection for you. If you neglect it, its health drops, and when health reaches 0 it passes away, but you can adopt a new pet and try again.
 
 ## Running the game
 
@@ -33,8 +33,12 @@ Once you've adopted, type commands:
 
 | Command       | What it does                                                         |
 |---------------|----------------------------------------------------------------------|
-| `feed <food>` | Feed your pet, e.g. `feed tuna`. Favorite foods fill it up more and make it happier. |
+| `feed <food>` | Feed your pet food from your bag, e.g. `feed tuna`. Favorite foods fill it up more and make it happier. `feed chow` is always free. |
+| `greet`       | Say hi. The more affection your pet has, the warmer its greeting.    |
 | `play`        | Play together. Makes it happier, but more tired, hungry, and dirty.  |
+| `games`       | Play a mini-game: Higher or Lower, or Left or Right. Raises happiness and affection, and earns coins. |
+| `shop`        | Spend coins on your pet's favorite foods.                            |
+| `bag`         | See your coins and food.                                             |
 | `sleep`       | Restores energy.                                                     |
 | `bathe`       | Makes your pet clean (most pets aren't fans).                        |
 | `speak`       | Hear your pet. What it says depends on its mood.                     |
@@ -43,7 +47,39 @@ Once you've adopted, type commands:
 | `help`        | Show the command list.                                               |
 | `quit`        | Leave the game.                                                      |
 
-Each action moves time forward one step: hunger rises and energy, happiness, and cleanliness fall. The game prints a warning when a stat gets low. `status`, `help`, and `foods` don't use up time.
+Each action moves time forward one step: hunger rises and energy, happiness, and cleanliness fall. The game prints a warning when a stat gets low. `status`, `help`, `foods`, `shop`, and `bag` don't use up time.
+
+### Mini-games
+
+Type `games` to pick one. Each game is 3 rounds.
+
+- **Higher or Lower:** a card is shown, and you guess whether the next card will be higher or lower. Aces are low and Kings are high, and a tie scores nothing.
+- **Left or Right:** the classic V-Pet game. Your pet is about to turn, and you guess which way. Then it appears on that side of the screen, facing that way.
+
+Every game raises happiness by 5, plus 5 per round won, and affection by 1, plus 3 per round won. Winning all 3 rounds earns a 5-point affection bonus. Games use 10 energy and add 5 hunger, and a pet that is too tired won't play. Type `back` at the game menu to leave without playing.
+
+Games also pay **coins**: 2 for playing, 5 per round won, and a 5-coin bonus for a perfect game (2, 7, 12, or 22 coins for 0 to 3 wins).
+
+### Coins and the shop
+
+You start with 20 coins. Type `shop` to see your pet's favorite foods and their prices (4 to 20 coins), then buy by number. Bought food goes in your bag, and `feed` takes it from there. If you run out, `feed chow` is a free basic meal that never runs out, but it isn't a favorite. Your coins and bag carry over if you adopt a new pet. A full pet won't eat, so you never waste food.
+
+### Affection and greetings
+
+Affection grows as you play mini-games, and it changes how your pet greets you when you adopt it and whenever you type `greet`:
+
+| Affection | Level        | Example (cat)                                              |
+|-----------|--------------|------------------------------------------------------------|
+| 0-19      | Shy          | Luna watches you from across the room and doesn't come any closer. |
+| 20-49     | Friendly     | Luna strolls over and gives you a polite little meow.      |
+| 50-79     | Close        | Luna rubs against your legs, purring.                      |
+| 80-100    | Best Friends | Luna headbutts you lovingly and curls up in your lap. Purrrr... |
+
+`status` shows your pet's affection and level.
+
+### If your pet dies
+
+Like hatching a new egg on a Digimon V-Pet, losing a pet isn't the end of the game. You'll see a tombstone and a memorial listing every pet you've lost and how many turns each one lived. Then you can go back to the adoption center and adopt a new pet, or end the game.
 
 ## The pets
 
@@ -59,9 +95,12 @@ Each action moves time forward one step: hunger rises and energy, happiness, and
 | File                  | Purpose                                                                 |
 |-----------------------|-------------------------------------------------------------------------|
 | `VirtualPetGame.java` | Entry point and game loop: adoption center, commands, warnings.         |
-| `Pet.java`            | Abstract base class with the shared stats (hunger, happiness, energy, cleanliness, health) and care actions. |
+| `Pet.java`            | Abstract base class with the shared stats (hunger, happiness, energy, cleanliness, health, affection) and care actions. |
 | `Dog.java`, `Cat.java`, `Dinosaur.java`, `Bird.java` | Each animal's sounds, favorite foods, and its own reactions. |
 | `PixelArt.java`       | Draws the pixel-art animal pictures in the console.                     |
+| `Games.java`          | The Higher or Lower and Left or Right mini-games.                       |
+| `Store.java`, `Food.java` | The shop and the foods it sells, with prices.                       |
+| `Inventory.java`      | Your bag: coins and the food you've bought.                           |
 
 ### Adding a new pet
 
@@ -80,7 +119,7 @@ Then add it to `showAdoptionCenter()` and `pickAnimal()` in `VirtualPetGame.java
 
 ## Planned
 
-`Food`, `Store`, `Games`, `Training`, and `Hunger` are placeholders for upcoming features, such as a store where you buy food with coins earned from mini-games, and tricks your pet can learn.
+`Training` and `Hunger` are placeholders for upcoming features, such as tricks your pet can learn.
 
 ## Change log
 
@@ -89,3 +128,6 @@ Then add it to `showAdoptionCenter()` and `pickAnimal()` in `VirtualPetGame.java
 | 2026-10-22 | Created the `Pet` base class and the `Dog`, `Cat`, and `Dinosaur` pets. Added the `VirtualPetGame` game loop (replacing IntelliJ's starter `Main.java`) and this README. |
 | 2026-10-26 | Added the `Bird` pet and comments on every class and method, including a change log in each file. |
 | 2026-10-26 | Added the adoption center: pixel-art animals to choose from, naming, a confirmation step, and an adoption certificate. `status` now shows your pet's picture. Added the `--plain` option. |
+| 2026-10-26 | When a pet dies, the game shows a tombstone and a memorial of every pet you've lost, then lets you adopt a new one. A pet's age now counts the turns it has lived. |
+| 2026-10-26 | Added the Higher or Lower and Left or Right mini-games (`games` command) and the affection stat, which mini-games raise along with happiness. |
+| 2026-10-26 | Mini-games are now 3 rounds and pay coins based on how many rounds you win. Added the shop (`shop`), your bag of coins and food (`bag`), and free Chow; feeding now uses food from your bag. Pets now greet you based on affection (`greet`), with four affection levels shown in `status`. |

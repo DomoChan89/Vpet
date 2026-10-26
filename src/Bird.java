@@ -7,6 +7,7 @@ import java.util.List;
  *   2026-10-26  Created as a Pet with sounds, favorite foods, and bird messages.
  *   2026-10-26  Added comments to every method.
  *   2026-10-26  Added pixel-art sprite for the adoption center.
+ *   2026-10-26  Added greetings that get warmer as affection grows.
  */
 public class Bird extends Pet {
     /** Pixel art: a blue bird with a white belly and yellow beak and feet. */
@@ -51,6 +52,17 @@ public class Bird extends Pet {
     /** Returns the bird's pixel art. */
     @Override
     public String[] getSprite() { return SPRITE; }
+
+    /** Bird greetings, from Shy to Best Friends. */
+    @Override
+    protected String[] getGreetings() {
+        return new String[] {
+                getName() + " ruffles their feathers and hops to the far end of the perch.",
+                getName() + " tilts their head and chirps hello.",
+                getName() + " flutters over and lands on your finger. Tweet!",
+                getName() + " lands on your shoulder, nuzzles your cheek, and sings you a song!",
+        };
+    }
 
     /** Uses the species in the status line, e.g. "Kiwi the Parakeet". */
     @Override

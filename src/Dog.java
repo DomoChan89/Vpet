@@ -8,6 +8,7 @@ import java.util.List;
  *   2026-10-22  Now extends Pet; shared stats and actions moved there.
  *   2026-10-26  Added comments to every method.
  *   2026-10-26  Added pixel-art sprite for the adoption center.
+ *   2026-10-26  Added greetings that get warmer as affection grows.
  */
 public class Dog extends Pet {
     /** Pixel art: a brown puppy face with floppy ears and a pink tongue. */
@@ -50,6 +51,17 @@ public class Dog extends Pet {
     /** Returns the dog's pixel art. */
     @Override
     public String[] getSprite() { return SPRITE; }
+
+    /** Dog greetings, from Shy to Best Friends. */
+    @Override
+    protected String[] getGreetings() {
+        return new String[] {
+                getName() + " sniffs your hand cautiously, tail held low.",
+                getName() + " wags their tail and trots over to say hi. Woof!",
+                getName() + " bounds over, tail wagging like crazy, and licks your hand!",
+                getName() + " leaps into your arms and covers you in puppy kisses! Woof woof!",
+        };
+    }
 
     /** Uses the breed in the status line, e.g. "Rex the Beagle". */
     @Override

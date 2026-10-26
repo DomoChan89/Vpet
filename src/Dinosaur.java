@@ -7,6 +7,7 @@ import java.util.List;
  *   2026-10-22  Created as a Pet with sounds, favorite foods, and dinosaur messages.
  *   2026-10-26  Added comments to every method.
  *   2026-10-26  Added pixel-art sprite for the adoption center.
+ *   2026-10-26  Added greetings that get warmer as affection grows.
  */
 public class Dinosaur extends Pet {
     /** Pixel art: a little green T-Rex with white teeth. */
@@ -51,6 +52,17 @@ public class Dinosaur extends Pet {
     /** Returns the dinosaur's pixel art. */
     @Override
     public String[] getSprite() { return SPRITE; }
+
+    /** Dinosaur greetings, from Shy to Best Friends. */
+    @Override
+    protected String[] getGreetings() {
+        return new String[] {
+                getName() + " eyes you warily and gives a low growl. Grrr...",
+                getName() + " stomps over and gives you a curious sniff.",
+                getName() + " nuzzles you with their big snout. Rawr!",
+                getName() + " does a happy stomp dance and gives you a gentle dino hug! ROOOAR!",
+        };
+    }
 
     /** Uses the species in the status line, e.g. "Chompy the T-Rex". */
     @Override

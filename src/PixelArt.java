@@ -7,6 +7,7 @@ import java.util.List;
  *
  * Change log:
  *   2026-10-26  Created to show pixel-art animals in the adoption center.
+ *   2026-10-26  Added mirror() and an indent option to render() for the Left or Right game.
  */
 public final class PixelArt {
     private static final String RESET = "\u001B[0m";
@@ -61,7 +62,26 @@ public final class PixelArt {
 
     /** Draws a single sprite. */
     public static String render(String[] sprite) {
-        return renderSideBySide(List.<String[]>of(sprite), List.of());
+        return render(sprite, 0);
+    }
+
+    /** Draws a single sprite, shifted right by the given number of spaces. */
+    public static String render(String[] sprite, int indent) {
+        String pad = " ".repeat(indent);
+        StringBuilder out = new StringBuilder();
+        for (int r = 0; r < sprite.length; r++) {
+            out.append(pad).append(row(sprite, r, sprite[0].length())).append('\n');
+        }
+        return out.toString();
+    }
+
+    /** Returns a copy of the sprite flipped left-to-right, so it faces the other way. */
+    public static String[] mirror(String[] sprite) {
+        String[] flipped = new String[sprite.length];
+        for (int r = 0; r < sprite.length; r++) {
+            flipped[r] = new StringBuilder(sprite[r]).reverse().toString();
+        }
+        return flipped;
     }
 
     /**

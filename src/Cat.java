@@ -7,6 +7,7 @@ import java.util.List;
  *   2026-10-22  Created as a Pet with sounds, favorite foods, and cat messages.
  *   2026-10-26  Added comments to every method.
  *   2026-10-26  Added pixel-art sprite for the adoption center.
+ *   2026-10-26  Added greetings that get warmer as affection grows.
  */
 public class Cat extends Pet {
     /** Pixel art: an orange cat face with green eyes and whiskers. */
@@ -50,6 +51,17 @@ public class Cat extends Pet {
     /** Returns the cat's pixel art. */
     @Override
     public String[] getSprite() { return SPRITE; }
+
+    /** Cat greetings, from Shy to Best Friends. */
+    @Override
+    protected String[] getGreetings() {
+        return new String[] {
+                getName() + " watches you from across the room and doesn't come any closer.",
+                getName() + " strolls over and gives you a polite little meow.",
+                getName() + " rubs against your legs, purring.",
+                getName() + " headbutts you lovingly and curls up in your lap. Purrrr...",
+        };
+    }
 
     /** Uses the breed in the status line, e.g. "Luna the Siamese". */
     @Override
