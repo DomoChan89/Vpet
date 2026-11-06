@@ -8,6 +8,8 @@ import java.util.List;
  * Change log:
  *   2026-10-26  Created to show pixel-art animals in the adoption center.
  *   2026-10-26  Added mirror() and an indent option to render() for the Left or Right game.
+ *   2026-11-06  renderSideBySide() uses sprites.get(0) instead of getFirst(), which only
+ *               exists in JDK 21+, so the game compiles on JDK 18.
  */
 public final class PixelArt {
     private static final String RESET = "\u001B[0m";
@@ -89,7 +91,7 @@ public final class PixelArt {
      * All sprites should be the same width.
      */
     public static String renderSideBySide(List<String[]> sprites, List<String> captions) {
-        int width = sprites.getFirst()[0].length();
+        int width = sprites.get(0)[0].length();
         int height = sprites.stream().mapToInt(s -> s.length).max().orElse(0);
         String gap = "    ";
         StringBuilder out = new StringBuilder();

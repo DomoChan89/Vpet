@@ -4,16 +4,18 @@ A text-based virtual pet game in Java, inspired by the Tamagotchi. Adopt a dog, 
 
 ## Running the game
 
-Requires **JDK 25**.
+Requires **JDK 18** or later. The code only uses Java features available in JDK 18.
 
 **In IntelliJ IDEA:** open `src/VirtualPetGame.java` and click the green run arrow next to `main`. Play by typing in the Run window.
 
 **From the command line:**
 
 ```sh
-javac -d out src/*.java
+javac --release 18 -d out src/*.java
 java -cp out VirtualPetGame
 ```
+
+`--release 18` makes the compiler reject anything newer than Java 18, even if you have a newer JDK installed, so you can be sure it builds for the class.
 
 The animals are drawn as colored pixel art. If your console shows odd symbols instead of colors, run with `--plain` to draw them with `#` characters instead:
 
@@ -124,6 +126,11 @@ A pet dies if its hunger meter stays empty for 10 turns in a row, or if it's lef
 | Dinosaur | Steak, Ferns, Ribs, Leaves, Fish, Giant Egg       | ROOOAR!, Rawr!, *stomp stomp*, ... |
 | Bird     | Seeds, Millet, Apple, Berries, Mealworms, Sunflower Seeds | Tweet!, Squawk!, *whistle*, ... |
 
+## Design documents
+
+- [Pseudocode](docs/Pseudocode.md): the game's logic in plain-English pseudocode, section by section.
+- [Flowcharts](docs/Flowcharts.md): flowcharts of the game flow, command loop, turns, feeding, mini-games, shop, and training.
+
 ## Project structure
 
 | File                  | Purpose                                                                 |
@@ -165,3 +172,4 @@ Then add it to `showAdoptionCenter()` and `pickAnimal()` in `VirtualPetGame.java
 | 2026-10-26 | Mini-games are now 3 rounds and pay coins based on how many rounds you win. Added the shop (`shop`), your bag of coins and food (`bag`), and free Chow; feeding now uses food from your bag. Pets now greet you based on affection (`greet`), with four affection levels shown in `status`. |
 | 2026-10-26 | Added trick training: every pet can learn Fetch, Stay, and Speak (`train`), check progress (`tricks`), and show off learned tricks (`trick <name>`). |
 | 2026-10-26 | Hunger is now a Tamagotchi-style hunger meter (100 = full, 0 = empty) in `Hunger.java`. It drains every turn and more with training (now -10), play, and games. Favorite foods fill it all the way. New snacks (Cookie, Crackers) and candy (Candy, Lollipop) fill it a little but raise affection. Pets now starve if the meter stays empty for 10 turns, with a countdown warning, and the memorial says how each pet died. |
+| 2026-11-06 | Fixed the build for JDK 18: `Pet` and `PixelArt` used `List.getFirst()`, which only exists in JDK 21 and later, so they now use `get(0)`. The project's IntelliJ language level is now 18, and the README build command uses `--release 18`. Added [pseudocode](docs/Pseudocode.md) and [flowcharts](docs/Flowcharts.md). |

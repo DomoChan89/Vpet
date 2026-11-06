@@ -26,6 +26,8 @@ import java.util.Random;
  *               it a little but raise affection. Training drains it more. A pet whose meter
  *               stays empty for too long starves, and an empty meter no longer costs health.
  *               Added isHungry() and getCauseOfDeath().
+ *   2026-11-06  playMessage() uses getSounds().get(0) instead of getFirst(), which only
+ *               exists in JDK 21+, so the game compiles on JDK 18.
  */
 public abstract class Pet {
     protected static final int MAX_STAT = 100;
@@ -80,7 +82,7 @@ public abstract class Pet {
 
     /** Message shown when the pet plays. */
     protected String playMessage() {
-        return name + " plays happily! " + getSounds().getFirst();
+        return name + " plays happily! " + getSounds().get(0);
     }
 
     /** Message shown when the pet gets a bath. */
