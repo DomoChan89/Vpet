@@ -1,30 +1,51 @@
-import java.util.ArrayList;
+/**
+* CSC 1061 1H2
+* Instructor: Jim Eberle
+* Homework #: Final Programming Project
+* Date: 11/19/2026
+* Class: VirtualPetGame.java
+* @author Dominique Wigginton
+* Description:
+*   The game itself: the player visits the adoption center and adopts a pet,
+*   then types commands (feed, play, sleep, ...) in a loop until they quit or the pet dies.
+*
+* Inputs:  Commands typed by the player at the keyboard; optional --plain argument.
+* Outputs: The game printed to the console: pets, stats, warnings, shop, games, history, memorial.
+*
+* Change log:
+*   Date        Description
+*   2026-10-22  Created as the game's starting point, replacing IntelliJ's starter Main.java.
+*               Added pet selection, the command loop, and low-stat warnings.
+*   2026-10-26  Added the bird as a pet choice.
+*   2026-10-26  Added comments to every method.
+*   2026-10-26  Replaced the simple pet choice with an adoption center: pick from
+*               pixel-art animals, name your pet, confirm, and get an adoption certificate.
+*               The status command now shows your pet's picture. Added the --plain option.
+*   2026-10-26  When a pet dies, the game shows a tombstone and a memorial of every pet
+*               you've lost, then lets you adopt a new pet and keep playing.
+*   2026-10-26  Added the games command for the Higher or Lower and Left or Right mini-games.
+*   2026-10-26  Added coins and the shop: games pay coins, the shop command spends them on
+*               food, and the bag command shows what you have. Feeding now uses food from
+*               your bag, except Chow, which is always free. Added the greet command, and
+*               pets now greet you based on their affection.
+*   2026-10-26  Added trick training: the train, tricks, and trick commands.
+*   2026-10-26  Warnings now count down the turns left when the hunger meter is empty,
+*               and the death message says how the pet died (starved or got sick).
+*   2026-11-19  The memorial is now my own MyLinkedList<Pet> instead of an ArrayList, and
+*               it is listed by how long each pet lived using recursive merge sort.
+*               Every command that uses a turn is saved in an ActivityHistory (a
+*               MyLinkedList plus a MyQueue of the last 5). Added the history,
+*               history <word>, history sort, recent, and memorial commands.
+*   2026-11-19  Added the CSC 1061 file header (course, instructor, date, author,
+*               description, inputs, outputs) to the top of the file.
+*   2026-11-19  Added readLine(): when input runs out during a question, the game now ends
+*               cleanly instead of crashing. ask(), the shop, games, and training use it.
+*/
+
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
 
-/**
- * The game itself: the player visits the adoption center and adopts a pet,
- * then types commands (feed, play, sleep, ...) in a loop until they quit or the pet dies.
- *
- * Change log:
- *   2026-10-22  Created as the game's starting point, replacing IntelliJ's starter Main.java.
- *               Added pet selection, the command loop, and low-stat warnings.
- *   2026-10-26  Added the bird as a pet choice.
- *   2026-10-26  Added comments to every method.
- *   2026-10-26  Replaced the simple pet choice with an adoption center: pick from
- *               pixel-art animals, name your pet, confirm, and get an adoption certificate.
- *               The status command now shows your pet's picture. Added the --plain option.
- *   2026-10-26  When a pet dies, the game shows a tombstone and a memorial of every pet
- *               you've lost, then lets you adopt a new pet and keep playing.
- *   2026-10-26  Added the games command for the Higher or Lower and Left or Right mini-games.
- *   2026-10-26  Added coins and the shop: games pay coins, the shop command spends them on
- *               food, and the bag command shows what you have. Feeding now uses food from
- *               your bag, except Chow, which is always free. Added the greet command, and
- *               pets now greet you based on their affection.
- *   2026-10-26  Added trick training: the train, tricks, and trick commands.
- *   2026-10-26  Warnings now count down the turns left when the hunger meter is empty,
- *               and the death message says how the pet died (starved or got sick).
- */
 public class VirtualPetGame {
     /** Pixel art: a gray tombstone with a cross, shown when a pet dies. */
     private static final String[] TOMBSTONE = {
@@ -48,7 +69,8 @@ public class VirtualPetGame {
     private final Games games = new Games(scanner, inventory);
     private final Store store = new Store(scanner, inventory);
     private final Training training = new Training(scanner);
-    private final List<Pet> memorial = new ArrayList<>();
+    private final MyLinkedList<Pet> memorial = new MyLinkedList<>();
+    private final ActivityHistory history = new ActivityHistory();
     private Pet pet;
 
     /** Starts the game. Run this to play. Pass --plain if colors don't show up in your console. */
@@ -157,6 +179,18 @@ public class VirtualPetGame {
                     printHelp();
                     continue;
                 }
+                case "history" -> {
+                    showHistory(parts.length < 2 ? "" : parts[1].trim());
+                    continue; // looking at the history doesn't make time pass
+                }
+                case "recent" -> {
+                    ActivityHistory.display("Last " + ActivityHistory.RECENT_LIMIT + " actions (oldest first)", history.getRecent());
+                    continue;
+                }
+                case "memorial" -> {
+                    showMemorial();
+                    continue;
+                }
                 case "quit", "exit" -> {
                     System.out.println("Bye! " + pet.getName() + " will miss you. " + pet.speak());
                     return;
@@ -168,6 +202,7 @@ public class VirtualPetGame {
             }
 
             pet.tick();
+            history.record(pet, input);
             if (pet.isAlive()) warnIfNeeded();
         }
     }
@@ -177,11 +212,51 @@ public class VirtualPetGame {
         memorial.add(pet);
         System.out.println("\nOh no... " + pet.getName() + " " + pet.getCauseOfDeath() + " and has passed away.\n");
         System.out.print(PixelArt.render(TOMBSTONE));
-        System.out.println("\nIn loving memory:");
-        for (Pet lost : memorial) {
+        showMemorial();
+        System.out.println();
+    }
+
+    /**
+     * Lists every pet that has died, longest-lived first. Uses recursive merge sort
+     * on the memorial linked list (the memorial itself stays in the order pets died).
+     */
+    private void showMemorial() {
+        if (memorial.isEmpty()) {
+            System.out.println("No pets have passed away. Keep up the good work!");
+            return;
+        }
+        MyLinkedList<Pet> byAge = memorial.mergeSort(Comparator.comparingInt(Pet::getAge).reversed());
+        System.out.println("\nIn loving memory (longest-lived first):");
+        for (Pet lost : byAge) {
             System.out.println("  - " + lost.getName() + " the " + lost.getKind() + " (lived " + lost.getAge() + " turns)");
         }
-        System.out.println();
+    }
+
+    /**
+     * Shows the activity history.
+     *   history         - every action in the order it happened
+     *   history sort    - grouped by action (insertion sort)
+     *   history <word>  - only actions containing the word (linear search)
+     * Also shows how many actions the current pet has done (recursive count).
+     */
+    private void showHistory(String option) {
+        if (history.isEmpty()) {
+            System.out.println("No activities have been recorded yet.");
+            return;
+        }
+        if (option.isEmpty()) {
+            ActivityHistory.display("Activity history (" + history.size() + " actions)", history.getAll());
+        } else if (option.equalsIgnoreCase("sort")) {
+            ActivityHistory.display("Activity history grouped by action", history.sortedByAction());
+        } else {
+            MyLinkedList<Activity> matches = history.search(option);
+            if (matches.isEmpty()) {
+                System.out.println("No activities match \"" + option + "\".");
+                return;
+            }
+            ActivityHistory.display(matches.size() + " action(s) matching \"" + option + "\"", matches);
+        }
+        System.out.println(pet.getName() + " has done " + history.countFor(pet.getName()) + " action(s) with you.");
     }
 
     /**
@@ -256,11 +331,24 @@ public class VirtualPetGame {
         System.out.println(border);
     }
 
+    /**
+     * Reads the player's next line. If the input has run out (for example, input was
+     * piped in from a file and it ended), the game says goodbye and ends cleanly
+     * instead of crashing with NoSuchElementException. Every prompt in the game uses this.
+     */
+    public static String readLine(Scanner input) {
+        if (!input.hasNextLine()) {
+            System.out.println("\nNo more input. Thanks for playing Virtual Pet. Goodbye!");
+            System.exit(0);
+        }
+        return input.nextLine();
+    }
+
     /** Shows a question and keeps asking until the player types a non-empty answer. */
     private String ask(String prompt) {
         while (true) {
             System.out.print(prompt);
-            String answer = scanner.nextLine().trim();
+            String answer = readLine(scanner).trim();
             if (!answer.isEmpty()) return answer;
         }
     }
@@ -301,6 +389,10 @@ public class VirtualPetGame {
                   speak        - hear what your pet has to say
                   foods        - list your pet's favorite foods
                   status       - check your pet's stats
+                  history      - see everything you've done ('history sort' groups it,
+                                 'history <word>' searches it, e.g. history bacon)
+                  recent       - see your last 5 actions
+                  memorial     - see the pets that have passed away
                   help         - show this list
                   quit         - leave the game""");
     }

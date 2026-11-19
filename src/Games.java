@@ -1,17 +1,32 @@
+/**
+* CSC 1061 1H2
+* Instructor: Jim Eberle
+* Homework #: Final Programming Project
+* Date: 11/19/2026
+* Class: Games.java
+* @author Dominique Wigginton
+* Description:
+*   Mini-games to play with your pet. Each game has 3 rounds. Winning rounds makes
+*   the pet happier, raises its affection for you (see Pet.rewardForGame), and earns
+*   coins to spend at the shop. Every game tires the pet out a little.
+*
+* Inputs:  The player's game choice and guesses typed at the keyboard (h/l, l/r, back).
+* Outputs: Rounds printed to the console, coins added to the bag, and the result message.
+*
+* Change log:
+*   Date        Description
+*   2026-10-22  Created as an empty placeholder.
+*   2026-10-26  Added class comment.
+*   2026-10-26  Added the Higher or Lower and Left or Right mini-games.
+*   2026-10-26  Games are now 3 rounds and pay coins based on how many rounds you win.
+*   2026-11-19  Added the CSC 1061 file header (course, instructor, date, author,
+*               description, inputs, outputs) to the top of the file.
+*   2026-11-19  Reads input with VirtualPetGame.readLine() so running out of input can't crash it.
+*/
+
 import java.util.Random;
 import java.util.Scanner;
 
-/**
- * Mini-games to play with your pet. Each game has 3 rounds. Winning rounds makes
- * the pet happier, raises its affection for you (see Pet.rewardForGame), and earns
- * coins to spend at the shop. Every game tires the pet out a little.
- *
- * Change log:
- *   2026-10-22  Created as an empty placeholder.
- *   2026-10-26  Added class comment.
- *   2026-10-26  Added the Higher or Lower and Left or Right mini-games.
- *   2026-10-26  Games are now 3 rounds and pay coins based on how many rounds you win.
- */
 public class Games {
     private static final int ROUNDS = 3;
     private static final int COINS_FOR_PLAYING = 2;
@@ -45,7 +60,7 @@ public class Games {
                   2) Left or Right   - guess which way your pet will turn""");
         while (true) {
             System.out.print("Pick a game (1-2, or 'back'): ");
-            String choice = scanner.nextLine().trim().toLowerCase();
+            String choice = VirtualPetGame.readLine(scanner).trim().toLowerCase();
             switch (choice) {
                 case "1", "higher or lower", "higher", "cards" -> {
                     return playHigherOrLower(pet);
@@ -174,7 +189,7 @@ public class Games {
     private char askOneOf(String prompt, char first, char second) {
         while (true) {
             System.out.print(prompt);
-            String answer = scanner.nextLine().trim().toLowerCase();
+            String answer = VirtualPetGame.readLine(scanner).trim().toLowerCase();
             if (!answer.isEmpty() && (answer.charAt(0) == first || answer.charAt(0) == second)) {
                 return answer.charAt(0);
             }

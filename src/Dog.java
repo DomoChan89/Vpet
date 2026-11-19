@@ -1,16 +1,30 @@
+/**
+* CSC 1061 1H2
+* Instructor: Jim Eberle
+* Homework #: Final Programming Project
+* Date: 11/19/2026
+* Class: Dog.java
+* @author Dominique Wigginton
+* Description:
+*   A pet dog. Barks, loves meaty food and fetch, and shakes water everywhere after a bath.
+*
+* Inputs:  Name and breed from the adoption center; care actions called by the game.
+* Outputs: Dog sounds, greetings, messages, and its pixel-art sprite.
+*
+* Change log:
+*   Date        Description
+*   2026-10-22  Created with sounds, favorite foods, stats, and care actions.
+*   2026-10-22  Now extends Pet; shared stats and actions moved there.
+*   2026-10-26  Added comments to every method.
+*   2026-10-26  Added pixel-art sprite for the adoption center.
+*   2026-10-26  Added greetings that get warmer as affection grows.
+*   2026-10-26  Hungry check now uses isHungry() for the new hunger meter.
+*   2026-11-19  Added the CSC 1061 file header (course, instructor, date, author,
+*               description, inputs, outputs) to the top of the file.
+*/
+
 import java.util.List;
 
-/**
- * A pet dog. Barks, loves meaty food and fetch, and shakes water everywhere after a bath.
- *
- * Change log:
- *   2026-10-22  Created with sounds, favorite foods, stats, and care actions.
- *   2026-10-22  Now extends Pet; shared stats and actions moved there.
- *   2026-10-26  Added comments to every method.
- *   2026-10-26  Added pixel-art sprite for the adoption center.
- *   2026-10-26  Added greetings that get warmer as affection grows.
- *   2026-10-26  Hungry check now uses isHungry() for the new hunger meter.
- */
 public class Dog extends Pet {
     /** Pixel art: a brown puppy face with floppy ears and a pink tongue. */
     public static final String[] SPRITE = {

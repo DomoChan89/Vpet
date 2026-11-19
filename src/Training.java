@@ -1,17 +1,32 @@
+/**
+* CSC 1061 1H2
+* Instructor: Jim Eberle
+* Homework #: Final Programming Project
+* Date: 11/19/2026
+* Class: Training.java
+* @author Dominique Wigginton
+* Description:
+*   Trick training. Every pet can learn Fetch, Stay, and Speak. Each training session
+*   may or may not work. A happy pet with lots of affection learns faster. After
+*   Pet.SESSIONS_TO_LEARN successful sessions the pet knows the trick and can show it off.
+*
+* Inputs:  The current pet, and the trick number or name (or 'back') typed by the player.
+* Outputs: Training results, trick progress bars, and trick show-off messages.
+*
+* Change log:
+*   Date        Description
+*   2026-10-22  Created as an empty placeholder.
+*   2026-10-26  Added class comment.
+*   2026-10-26  Added training for the Fetch, Stay, and Speak tricks, and showing them off.
+*   2026-11-19  Added the CSC 1061 file header (course, instructor, date, author,
+*               description, inputs, outputs) to the top of the file.
+*   2026-11-19  Reads input with VirtualPetGame.readLine() so running out of input can't crash it.
+*/
+
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
-/**
- * Trick training. Every pet can learn Fetch, Stay, and Speak. Each training session
- * may or may not work. A happy pet with lots of affection learns faster. After
- * Pet.SESSIONS_TO_LEARN successful sessions the pet knows the trick and can show it off.
- *
- * Change log:
- *   2026-10-22  Created as an empty placeholder.
- *   2026-10-26  Added class comment.
- *   2026-10-26  Added training for the Fetch, Stay, and Speak tricks, and showing them off.
- */
 public class Training {
     /** The tricks every pet can learn. */
     public static final List<String> TRICKS = List.of("Fetch", "Stay", "Speak");
@@ -38,7 +53,7 @@ public class Training {
 
         while (true) {
             System.out.print("Which trick do you want to practice? (1-" + TRICKS.size() + ", or 'back') ");
-            String input = scanner.nextLine().trim();
+            String input = VirtualPetGame.readLine(scanner).trim();
             if (input.equalsIgnoreCase("back")) return null;
 
             String trick = findTrick(input);

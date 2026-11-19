@@ -1,14 +1,27 @@
 /**
- * A pet's hunger meter, like the hunger hearts on a Tamagotchi. 100 means full and
- * 0 means empty. The meter drains over time and with activity (training, games, play),
- * and food fills it back up. If the meter stays empty for STARVE_TURNS turns in a row,
- * the pet starves.
- *
- * Change log:
- *   2026-10-22  Created as an empty placeholder.
- *   2026-10-26  Added class comment.
- *   2026-10-26  Now the hunger meter: 100 = full, 0 = empty, with a starvation countdown.
- */
+* CSC 1061 1H2
+* Instructor: Jim Eberle
+* Homework #: Final Programming Project
+* Date: 11/19/2026
+* Class: Hunger.java
+* @author Dominique Wigginton
+* Description:
+*   A pet's hunger meter, like the hunger hearts on a Tamagotchi. 100 means full and
+*   0 means empty. The meter drains over time and with activity (training, games, play),
+*   and food fills it back up. If the meter stays empty for STARVE_TURNS turns in a row,
+*   the pet starves.
+*
+* Inputs:  Amounts to fill or drain, and one tick per game turn.
+* Outputs: The meter level (0-100), hungry/full/empty checks, and the starvation countdown.
+*
+* Change log:
+*   Date        Description
+*   2026-10-22  Created as an empty placeholder.
+*   2026-10-26  Added class comment.
+*   2026-10-26  Now the hunger meter: 100 = full, 0 = empty, with a starvation countdown.
+*   2026-11-19  Added the CSC 1061 file header (course, instructor, date, author,
+*               description, inputs, outputs) to the top of the file.
+*/
 public class Hunger {
     public static final int FULL = 100;
     /** How many turns a pet can go with an empty meter before it starves. */
