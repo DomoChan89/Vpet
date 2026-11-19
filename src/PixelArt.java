@@ -1,16 +1,30 @@
+/**
+* CSC 1061 1H2
+* Instructor: Jim Eberle
+* Homework #: Final Programming Project
+* Date: 11/19/2026
+* Class: PixelArt.java
+* @author Dominique Wigginton
+* Description:
+*   Draws pixel-art sprites in the console. A sprite is a list of text rows where
+*   each letter is one colored pixel (see color()) and '.' is an empty pixel.
+*   Each pixel is printed as two colored spaces so it looks roughly square.
+*
+* Inputs:  Sprites (rows of color letters) and the --plain setting.
+* Outputs: Text that draws the sprites in the console, in color or with # characters.
+*
+* Change log:
+*   Date        Description
+*   2026-10-26  Created to show pixel-art animals in the adoption center.
+*   2026-10-26  Added mirror() and an indent option to render() for the Left or Right game.
+*   2026-11-06  renderSideBySide() uses sprites.get(0) instead of getFirst(), which only
+*               exists in JDK 21+, so the game compiles on JDK 18.
+*   2026-11-19  Added the CSC 1061 file header (course, instructor, date, author,
+*               description, inputs, outputs) to the top of the file.
+*/
+
 import java.util.List;
 
-/**
- * Draws pixel-art sprites in the console. A sprite is a list of text rows where
- * each letter is one colored pixel (see color()) and '.' is an empty pixel.
- * Each pixel is printed as two colored spaces so it looks roughly square.
- *
- * Change log:
- *   2026-10-26  Created to show pixel-art animals in the adoption center.
- *   2026-10-26  Added mirror() and an indent option to render() for the Left or Right game.
- *   2026-11-06  renderSideBySide() uses sprites.get(0) instead of getFirst(), which only
- *               exists in JDK 21+, so the game compiles on JDK 18.
- */
 public final class PixelArt {
     private static final String RESET = "\u001B[0m";
 

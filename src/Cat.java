@@ -1,15 +1,29 @@
+/**
+* CSC 1061 1H2
+* Instructor: Jim Eberle
+* Homework #: Final Programming Project
+* Date: 11/19/2026
+* Class: Cat.java
+* @author Dominique Wigginton
+* Description:
+*   A pet cat. Meows and purrs, loves fish, chases laser dots, and hates baths.
+*
+* Inputs:  Name and breed from the adoption center; care actions called by the game.
+* Outputs: Cat sounds, greetings, messages, and its pixel-art sprite.
+*
+* Change log:
+*   Date        Description
+*   2026-10-22  Created as a Pet with sounds, favorite foods, and cat messages.
+*   2026-10-26  Added comments to every method.
+*   2026-10-26  Added pixel-art sprite for the adoption center.
+*   2026-10-26  Added greetings that get warmer as affection grows.
+*   2026-10-26  Hungry check now uses isHungry() for the new hunger meter.
+*   2026-11-19  Added the CSC 1061 file header (course, instructor, date, author,
+*               description, inputs, outputs) to the top of the file.
+*/
+
 import java.util.List;
 
-/**
- * A pet cat. Meows and purrs, loves fish, chases laser dots, and hates baths.
- *
- * Change log:
- *   2026-10-22  Created as a Pet with sounds, favorite foods, and cat messages.
- *   2026-10-26  Added comments to every method.
- *   2026-10-26  Added pixel-art sprite for the adoption center.
- *   2026-10-26  Added greetings that get warmer as affection grows.
- *   2026-10-26  Hungry check now uses isHungry() for the new hunger meter.
- */
 public class Cat extends Pet {
     /** Pixel art: an orange cat face with green eyes and whiskers. */
     public static final String[] SPRITE = {

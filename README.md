@@ -49,10 +49,15 @@ Once you've adopted, type commands:
 | `speak`       | Hear your pet. What it says depends on its mood.                     |
 | `foods`       | List your pet's favorite foods.                                      |
 | `status`      | Show your pet's picture and stats.                                   |
+| `history`     | See everything you've done, in order, and how many actions your current pet has done. |
+| `history <word>` | Search the history, e.g. `history bacon` or `history rex`.         |
+| `history sort`| See the history grouped by action (all `bathe`, then all `feed`, ...). |
+| `recent`      | See your last 5 actions.                                             |
+| `memorial`    | See every pet that has passed away, longest-lived first.             |
 | `help`        | Show the command list.                                               |
 | `quit`        | Leave the game.                                                      |
 
-Each action moves time forward one step: the hunger meter drains and energy, happiness, and cleanliness fall. The game prints a warning when a stat gets low. `status`, `help`, `foods`, `shop`, `bag`, and `tricks` don't use up time.
+Each action moves time forward one step: the hunger meter drains and energy, happiness, and cleanliness fall. The game prints a warning when a stat gets low. `status`, `help`, `shop`, `bag`, `tricks`, `history`, `recent`, and `memorial` don't use up time. Every action that does use time is saved in your activity history.
 
 ### Mini-games
 
@@ -115,7 +120,7 @@ After 3 successful sessions, your pet learns the trick and gets 5 happiness and 
 
 ### If your pet dies
 
-A pet dies if its hunger meter stays empty for 10 turns in a row, or if it's left so dirty that its health runs out. Like hatching a new egg on a Digimon V-Pet, losing a pet isn't the end of the game. You'll see a tombstone and a memorial listing every pet you've lost and how many turns each one lived, and the game tells you how your pet died. Then you can go back to the adoption center and adopt a new pet, or end the game.
+A pet dies if its hunger meter stays empty for 10 turns in a row, or if it's left so dirty that its health runs out. Like hatching a new egg on a Digimon V-Pet, losing a pet isn't the end of the game. You'll see a tombstone and a memorial listing every pet you've lost, longest-lived first, and how many turns each one lived, and the game tells you how your pet died. Then you can go back to the adoption center and adopt a new pet, or end the game.
 
 ## The pets
 
@@ -144,6 +149,14 @@ A pet dies if its hunger meter stays empty for 10 turns in a row, or if it's lef
 | `Hunger.java`         | The hunger meter: filling, draining, and the starvation countdown.      |
 | `Inventory.java`      | Your bag: coins and the food you've bought.                           |
 | `Training.java`       | Trick training: Fetch, Stay, and Speak.                                  |
+| `MyLinkedList.java`   | My own generic singly linked list (no java.util collections): add, remove, linear search, recursive `contains()` and `count()`, recursive merge sort, and iterative insertion sort. Used for the history, memorial, bag, trick progress, and shop stock. |
+| `MyQueue.java`        | My own generic first-in, first-out queue, built on `MyLinkedList`. Keeps your last 5 actions. |
+| `Activity.java`, `ActivityHistory.java` | One history record, and the full history with search, sort, and count. |
+| `DataStructureTest.java` | Automatic PASS/FAIL tests for the data structures. Run its `main` on its own. |
+
+### Running the data structure tests
+
+In IntelliJ, open `src/DataStructureTest.java` and click the green run arrow next to `main`. From the command line, after compiling: `java -cp out DataStructureTest`. Every line should say PASS, ending with `49 passed, 0 failed.`
 
 ### Adding a new pet
 
@@ -173,3 +186,4 @@ Then add it to `showAdoptionCenter()` and `pickAnimal()` in `VirtualPetGame.java
 | 2026-10-26 | Added trick training: every pet can learn Fetch, Stay, and Speak (`train`), check progress (`tricks`), and show off learned tricks (`trick <name>`). |
 | 2026-10-26 | Hunger is now a Tamagotchi-style hunger meter (100 = full, 0 = empty) in `Hunger.java`. It drains every turn and more with training (now -10), play, and games. Favorite foods fill it all the way. New snacks (Cookie, Crackers) and candy (Candy, Lollipop) fill it a little but raise affection. Pets now starve if the meter stays empty for 10 turns, with a countdown warning, and the memorial says how each pet died. |
 | 2026-11-06 | Fixed the build for JDK 18: `Pet` and `PixelArt` used `List.getFirst()`, which only exists in JDK 21 and later, so they now use `get(0)`. The project's IntelliJ language level is now 18, and the README build command uses `--release 18`. Added [pseudocode](docs/Pseudocode.md) and [flowcharts](docs/Flowcharts.md). |
+| 2026-11-19 | Added my own generic `MyLinkedList<T>` and `MyQueue<T>` (no java.util collections). The memorial, the bag, trick progress, and the shop's stock now use `MyLinkedList` instead of `ArrayList`, `TreeMap`, and `HashMap`. Added the activity history (`Activity`, `ActivityHistory`) with the `history`, `history <word>`, `history sort`, `recent`, and `memorial` commands. The memorial is sorted with recursive merge sort and the bag and history with insertion sort. Added `DataStructureTest`. |

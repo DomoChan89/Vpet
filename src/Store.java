@@ -1,19 +1,34 @@
-import java.util.ArrayList;
-import java.util.List;
+/**
+* CSC 1061 1H2
+* Instructor: Jim Eberle
+* Homework #: Final Programming Project
+* Date: 11/19/2026
+* Class: Store.java
+* @author Dominique Wigginton
+* Description:
+*   The shop, where the player spends coins from mini-games on food. It stocks
+*   your current pet's favorite foods plus snacks and candy for every pet.
+*   Bought food goes into the player's Inventory.
+*
+* Inputs:  The current pet, and the item number (or 'back') typed by the player.
+* Outputs: The shop menu, purchase messages, coins spent, and food added to the bag.
+*
+* Change log:
+*   Date        Description
+*   2026-10-22  Created as an empty placeholder.
+*   2026-10-26  Added class comment.
+*   2026-10-26  Now a working shop that sells each pet's favorite foods for coins.
+*   2026-10-26  Also sells snacks and candy (Food.TREATS), which raise affection.
+*   2026-11-19  The shop's stock is now my own MyLinkedList<Food> instead of an ArrayList.
+*               The menu walks the list with a for-each loop instead of get(i).
+*   2026-11-19  Added the CSC 1061 file header (course, instructor, date, author,
+*               description, inputs, outputs) to the top of the file.
+*   2026-11-19  Reads input with VirtualPetGame.readLine() so running out of input can't crash it.
+*/
+
 import java.util.Map;
 import java.util.Scanner;
 
-/**
- * The shop, where the player spends coins from mini-games on food. It stocks
- * your current pet's favorite foods plus snacks and candy for every pet.
- * Bought food goes into the player's Inventory.
- *
- * Change log:
- *   2026-10-22  Created as an empty placeholder.
- *   2026-10-26  Added class comment.
- *   2026-10-26  Now a working shop that sells each pet's favorite foods for coins.
- *   2026-10-26  Also sells snacks and candy (Food.TREATS), which raise affection.
- */
 public class Store {
     /** Price in coins of every food the shop can sell. */
     private static final Map<String, Integer> PRICES = Map.ofEntries(
@@ -42,12 +57,14 @@ public class Store {
     }
 
     /** Returns what the shop sells for this pet: its favorite foods (meals), then the snacks and candy. */
-    public List<Food> stockFor(Pet pet) {
-        List<Food> stock = new ArrayList<>();
+    public MyLinkedList<Food> stockFor(Pet pet) {
+        MyLinkedList<Food> stock = new MyLinkedList<>();
         for (String name : pet.getFavoriteFoods()) {
             stock.add(new Food(name, PRICES.getOrDefault(name, DEFAULT_PRICE), Food.Type.MEAL));
         }
-        stock.addAll(Food.TREATS);
+        for (Food treat : Food.TREATS) {
+            stock.add(treat);
+        }
         return stock;
     }
 
@@ -56,24 +73,27 @@ public class Store {
      * Buying something takes coins and adds the food to the inventory.
      */
     public void visit(Pet pet) {
-        List<Food> stock = stockFor(pet);
+        MyLinkedList<Food> stock = stockFor(pet);
         System.out.println("\n=== Pet Shop ===");
 
         while (true) {
             System.out.println("\n" + pet.getName() + "'s favorite meals (fill the hunger meter all the way):");
-            for (int i = 0; i < stock.size(); i++) {
-                Food food = stock.get(i);
-                if (food.getType() != Food.Type.MEAL && stock.get(i - 1).getType() == Food.Type.MEAL) {
+            int number = 1;
+            Food.Type previousType = Food.Type.MEAL;
+            for (Food food : stock) {
+                if (food.getType() != Food.Type.MEAL && previousType == Food.Type.MEAL) {
                     System.out.println("Snacks and candy (fill a little, but raise affection):");
                 }
                 String label = food.getType() == Food.Type.MEAL ? "" : food.getType() == Food.Type.SNACK ? "snack" : "candy";
                 System.out.printf("  %2d) %-16s %3d coins  %-6s (you have %d)%n",
-                        i + 1, food.getName(), food.getPrice(), label, inventory.countFood(food.getName()));
+                        number, food.getName(), food.getPrice(), label, inventory.countFood(food.getName()));
+                previousType = food.getType();
+                number++;
             }
             System.out.println("You have " + inventory.getCoins() + " coins.");
             System.out.print("Buy which item? (1-" + stock.size() + ", or 'back') ");
 
-            String choice = scanner.nextLine().trim().toLowerCase();
+            String choice = VirtualPetGame.readLine(scanner).trim().toLowerCase();
             if (choice.equals("back")) {
                 System.out.println("Thanks for shopping!");
                 return;

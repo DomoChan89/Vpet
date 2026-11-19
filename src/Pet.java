@@ -1,40 +1,65 @@
-import java.util.HashMap;
+/**
+* CSC 1061 1H2
+* Instructor: Jim Eberle
+* Homework #: Final Programming Project
+* Date: 11/19/2026
+* Class: Pet.java
+* @author Dominique Wigginton
+* Description:
+*   Base class for every virtual pet. Holds the shared stats (hunger, happiness,
+*   energy, cleanliness, health, affection) and the care actions that change them.
+*   Each animal extends this class and supplies its own sounds, favorite foods,
+*   pixel-art sprite, and messages.
+*
+* Inputs:  Care actions called by the game (feed, play, sleep, bathe, train, tick).
+* Outputs: Updated stats, messages for each action, the status line, and cause of death.
+*
+* Change log:
+*   Date        Description
+*   2026-10-22  Created. Moved the shared stats and care actions out of Dog so
+*               every animal can reuse them.
+*   2026-10-26  Added comments to every method.
+*   2026-10-26  Added getSprite() so each pet has a pixel-art picture.
+*   2026-10-26  Age now counts the turns the pet has lived (goes up by 1 each tick).
+*   2026-10-26  Added the affection stat and rewardForGame() for the mini-games.
+*               Added isTooTired() so play() and the mini-games share the same check.
+*   2026-10-26  Added greet(), which depends on affection, and affection levels
+*               (Shy, Friendly, Close, Best Friends) shown in the status line.
+*               Added isFull() so food bought at the shop isn't wasted on a full pet.
+*   2026-10-26  Added trick training: practiceTrick(), knowsTrick(), and showOffTrick().
+*   2026-10-26  Hunger is now a Hunger meter (100 = full, 0 = empty) instead of a number
+*               that counted up. Favorite foods fill it completely; snacks and candy fill
+*               it a little but raise affection. Training drains it more. A pet whose meter
+*               stays empty for too long starves, and an empty meter no longer costs health.
+*               Added isHungry() and getCauseOfDeath().
+*   2026-11-06  playMessage() uses getSounds().get(0) instead of getFirst(), which only
+*               exists in JDK 21+, so the game compiles on JDK 18.
+*   2026-11-19  Trick progress is now kept in my own MyLinkedList of TrickEntry
+*               (trick + sessions) instead of a java.util HashMap. Looking up a
+*               trick is a linear search.
+*   2026-11-19  Added the CSC 1061 file header (course, instructor, date, author,
+*               description, inputs, outputs) to the top of the file.
+*/
+
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
-/**
- * Base class for every virtual pet. Holds the shared stats (hunger, happiness,
- * energy, cleanliness, health, affection) and the care actions that change them.
- * Each animal extends this class and supplies its own sounds, favorite foods,
- * pixel-art sprite, and messages.
- *
- * Change log:
- *   2026-10-22  Created. Moved the shared stats and care actions out of Dog so
- *               every animal can reuse them.
- *   2026-10-26  Added comments to every method.
- *   2026-10-26  Added getSprite() so each pet has a pixel-art picture.
- *   2026-10-26  Age now counts the turns the pet has lived (goes up by 1 each tick).
- *   2026-10-26  Added the affection stat and rewardForGame() for the mini-games.
- *               Added isTooTired() so play() and the mini-games share the same check.
- *   2026-10-26  Added greet(), which depends on affection, and affection levels
- *               (Shy, Friendly, Close, Best Friends) shown in the status line.
- *               Added isFull() so food bought at the shop isn't wasted on a full pet.
- *   2026-10-26  Added trick training: practiceTrick(), knowsTrick(), and showOffTrick().
- *   2026-10-26  Hunger is now a Hunger meter (100 = full, 0 = empty) instead of a number
- *               that counted up. Favorite foods fill it completely; snacks and candy fill
- *               it a little but raise affection. Training drains it more. A pet whose meter
- *               stays empty for too long starves, and an empty meter no longer costs health.
- *               Added isHungry() and getCauseOfDeath().
- *   2026-11-06  playMessage() uses getSounds().get(0) instead of getFirst(), which only
- *               exists in JDK 21+, so the game compiles on JDK 18.
- */
 public abstract class Pet {
     protected static final int MAX_STAT = 100;
     protected static final Random RANDOM = new Random();
     private static final String[] AFFECTION_LEVELS = {"Shy", "Friendly", "Close", "Best Friends"};
     /** How many successful training sessions it takes to learn a trick. */
     public static final int SESSIONS_TO_LEARN = 3;
+
+    /** One trick and how many successful training sessions the pet has had for it. */
+    private static class TrickEntry {
+        private final String trick;
+        private int sessions;
+
+        TrickEntry(String trick) {
+            this.trick = trick;
+        }
+    }
 
     private final String name;
     private int age;                 // number of turns the pet has lived
@@ -46,7 +71,7 @@ public abstract class Pet {
     private int cleanliness = 80;
     private int health = 100;
     private int affection = 0;       // how attached the pet is to you; earned by playing mini-games
-    private final Map<String, Integer> trickProgress = new HashMap<>(); // trick -> successful sessions so far
+    private final MyLinkedList<TrickEntry> trickProgress = new MyLinkedList<>(); // successful sessions per trick
 
     /** Creates a pet with the given name and default starting stats. */
     protected Pet(String name) {
@@ -213,7 +238,13 @@ public abstract class Pet {
 
     /** Returns how many successful training sessions the pet has had for a trick (0 to SESSIONS_TO_LEARN). */
     public int getTrickProgress(String trick) {
-        return trickProgress.getOrDefault(trick, 0);
+        TrickEntry entry = findTrickEntry(trick);
+        return (entry == null) ? 0 : entry.sessions;
+    }
+
+    /** Linear search for a trick's progress entry (ignores upper/lower case). Returns null if not practiced yet. */
+    private TrickEntry findTrickEntry(String trick) {
+        return trickProgress.findFirst(entry -> entry.trick.equalsIgnoreCase(trick));
     }
 
     /** Returns true once the pet has fully learned a trick. */
@@ -231,7 +262,12 @@ public abstract class Pet {
         hunger.drain(10);
         if (!success || knowsTrick(trick)) return false;
 
-        trickProgress.merge(trick, 1, Integer::sum);
+        TrickEntry entry = findTrickEntry(trick);
+        if (entry == null) {
+            entry = new TrickEntry(trick);
+            trickProgress.add(entry);
+        }
+        entry.sessions++;
         if (knowsTrick(trick)) {
             happiness = clamp(happiness + 5);
             affection = clamp(affection + 5);

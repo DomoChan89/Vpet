@@ -1,16 +1,30 @@
+/**
+* CSC 1061 1H2
+* Instructor: Jim Eberle
+* Homework #: Final Programming Project
+* Date: 11/19/2026
+* Class: Food.java
+* @author Dominique Wigginton
+* Description:
+*   A food item sold at the shop: its name, how many coins it costs, and its type.
+*   Meals fill the hunger meter. Snacks and candy only fill it a little, but they're
+*   the only foods that raise affection.
+*
+* Inputs:  A food name (typeOf), or name, price, and type when the shop builds its stock.
+* Outputs: The food's name, price, and type (MEAL, SNACK, or CANDY).
+*
+* Change log:
+*   Date        Description
+*   2026-10-22  Created as an empty placeholder.
+*   2026-10-26  Added class comment.
+*   2026-10-26  Now holds a food's name and price for the shop.
+*   2026-10-26  Added food types (meal, snack, candy) and the snacks and candy every pet can eat.
+*   2026-11-19  Added the CSC 1061 file header (course, instructor, date, author,
+*               description, inputs, outputs) to the top of the file.
+*/
+
 import java.util.List;
 
-/**
- * A food item sold at the shop: its name, how many coins it costs, and its type.
- * Meals fill the hunger meter. Snacks and candy only fill it a little, but they're
- * the only foods that raise affection.
- *
- * Change log:
- *   2026-10-22  Created as an empty placeholder.
- *   2026-10-26  Added class comment.
- *   2026-10-26  Now holds a food's name and price for the shop.
- *   2026-10-26  Added food types (meal, snack, candy) and the snacks and candy every pet can eat.
- */
 public class Food {
     /** What kind of food it is, which decides what it does when eaten (see Pet.feed). */
     public enum Type { MEAL, SNACK, CANDY }
